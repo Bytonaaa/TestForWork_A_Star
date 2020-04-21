@@ -87,7 +87,7 @@ public class MinHeap<TKey, TValue> where TKey : IComparable<TKey>
         
         ReCalculateUp();
     }
-
+    
     private void ReCalculateDown()
     {
         int index = 0;

@@ -4,25 +4,25 @@ using UnityEngine.Tilemaps;
 public class GameMaster : MonoBehaviour
 {
     [SerializeField] 
-    private Tilemap _tilemap;
+    private Tilemap _tilemap = default;
 
     [SerializeField] 
-    private Tile _emptyTile;
+    private Tile _emptyTile = default;
 
     [SerializeField] 
-    private Tile _blockTile;
+    private Tile _blockTile = default;
 
     [SerializeField] 
-    private Tile _endTile;
+    private Tile _endTile = default;
 
     [SerializeField] 
-    private Tile _pathTile;
+    private Tile _pathTile = default;
 
     [SerializeField] 
-    private int m_width;
+    private int m_width = default;
 
     [SerializeField]
-    private int m_height;
+    private int m_height = default;
     
     private bool[,] _map;
 
@@ -73,7 +73,6 @@ public class GameMaster : MonoBehaviour
             return;
         }
         
-        _tilemap.SetTile(coordinate, _endTile);
         _map[coordinate.x, coordinate.y] = true;
         
         if (_endPoint.HasValue)
@@ -84,7 +83,8 @@ public class GameMaster : MonoBehaviour
             }
             _startPoint = _endPoint;
         }
-
+        
+        _tilemap.SetTile(coordinate, _endTile);
         _endPoint = new Vector2Int(coordinate.x , coordinate.y);
     }
 
@@ -188,6 +188,7 @@ public class GameMaster : MonoBehaviour
 
         _startPoint = null;
         _endPoint = null;
+        RemoveWayTilesOnMap();
     }
 
     public Vector3Int WorldToCell(Vector3 position) => _tilemap.WorldToCell(position);

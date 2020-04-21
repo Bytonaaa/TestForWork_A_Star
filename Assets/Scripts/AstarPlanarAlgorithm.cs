@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class AstarPlanarAlgorithm
@@ -17,6 +16,8 @@ public class AstarPlanarAlgorithm
         HashSet<Vector2Int> closedPoints = new HashSet<Vector2Int>();
         Dictionary<Vector2Int, Vector2Int> backwardPointDict = new Dictionary<Vector2Int, Vector2Int>();
         Dictionary<Vector2Int, int> distanceToPointDict = new Dictionary<Vector2Int, int>();
+        //Наверно можно backwardPoint и distanceToPoint объединить, или использовать вместо них массив двумерный.
+        //Но, думаю, для тестового и так сойдет :)
 
         var heuristic = _graph2D.HeuristicWayCost(start, end);
         pointsQueue.Add(heuristic, start);
@@ -45,24 +46,29 @@ public class AstarPlanarAlgorithm
 
             foreach (var neighbor in _graph2D.GetNeighbors(currentPoint))
             {
-                if (closedPoints.Contains(neighbor))
+                if (closedPoints.Contains(neighbor)) 
                 {
                     continue;
                 }
 
                 var distanceToNeighbor = currentPointDistance + _graph2D.WayCost(currentPoint, neighbor);
 
-                if (!distanceToPointDict.TryGetValue(neighbor, out int currentDistanceToNeighbor))
+                if (!distanceToPointDict.TryGetValue(neighbor, out int currentDistanceToNeighbor) ||
+                    distanceToNeighbor < currentDistanceToNeighbor)
                 {
-                    //|| distanceToNeighbor < currentDistanceToNeighbor
-                    //В общем случае это условие необходимо. И если оно выполняется, мы должны обновить ключ элемента neighbor в pointsQueue
-                    //и соответсвенно заново балансировать бинарное дерево.
-                    //Но т.к. в нашем случае эвристическая функция является консистентной, то neighbor появится в pointsQueue только 1 раз.
+
                     backwardPointDict[neighbor] = currentPoint;
                     distanceToPointDict[neighbor] = distanceToNeighbor;
                     var fValue = distanceToNeighbor + _graph2D.HeuristicWayCost(currentPoint, end);
 
-                    pointsQueue.Add(fValue, neighbor);
+                    pointsQueue.Add(fValue, neighbor); 
+                    //В этом месте может случится так, что neighbor продублируется в pointsQueue.
+                    //Поэтому нужно усовершенствовать MinHeap. добавить метод, который будет изменять вес у уже добавленного элемента и обновлять структуру MinHeap,
+                    //чтобы сохранялись свойства двоичной кучи.
+                    //Но в нашем конкретном случае этого не случится, потому что функции WayCost и HeuristicWayCost являются консистентными.
+                    //Из-за этого условие (distanceToNeighbor < currentDistanceToNeighbor) всегда будет == False.
+                    
+                    //Для тестового решил не делать :)
                 }
             }
         }
